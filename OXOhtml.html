@@ -1,0 +1,178 @@
+ <!DOCTYPE html>
+<html>
+<head>
+<style type="text/css">
+	table {
+  		font-family: arial, sans-serif;
+  		border-collapse: collapse;
+  		font-size: 150px;
+  	}
+
+	td, th {
+  	  	border: 5px solid #dddddd;
+  		text-align: center;
+  		padding: 8px;
+  		width: 160px;
+  		height: 160px;
+	}
+</style>
+</head>
+<body>
+
+<table>
+	<tr>
+		<th onclick="tabClick(0)" id="0">0</th>
+		<th onclick="tabClick(1)" id="1">1</th>
+		<th onclick="tabClick(2)" id="2">2</th>
+	</tr>
+	<tr>
+		<th onclick="tabClick(3)" id="3">3</th>
+		<th onclick="tabClick(4)" id="4">4</th>
+		<th onclick="tabClick(5)" id="5">5</th>
+	</tr>
+	<tr>
+		<th onclick="tabClick(6)" id="6">6</th>
+		<th onclick="tabClick(7)" id="7">7</th>
+		<th onclick="tabClick(8)" id="8">8</th>
+	</tr>
+</table>
+<button onclick="resetGame()">Reset game</button> <button onclick="test()">TEST</button>
+
+<script src=".\treeDataStruct.js">
+//THE IMPORT WONT WORK FUCK
+//import tree
+//import {Node, Tree} from 'treeDataStruct';
+
+//GLOBAL VAR
+var board = [];
+for (var i = 0; i <= 2; i++) {
+  board[i] = [];
+}
+
+function readBoard() {
+	board[0][0] = document.getElementById("0").innerHTML; 
+	board[0][1] = document.getElementById("1").innerHTML; 
+	board[0][2] = document.getElementById("2").innerHTML; 
+	board[1][0] = document.getElementById("3").innerHTML; 
+	board[1][1] = document.getElementById("4").innerHTML; 
+	board[1][2] = document.getElementById("5").innerHTML; 
+	board[2][0] = document.getElementById("6").innerHTML; 
+	board[2][1] = document.getElementById("7").innerHTML; 
+	board[2][2] = document.getElementById("8").innerHTML; 
+}
+
+function applyBoard() {
+	change(0,board[0][0]);
+	change(1,board[0][1]);
+	change(2,board[0][2]);
+	change(3,board[1][0]);
+	change(4,board[1][1]);
+	change(5,board[1][2]);
+	change(6,board[2][0]);
+	change(7,board[2][1]);
+	change(8,board[2][2]);
+}
+
+function change(id, data) {
+	document.getElementById(id).innerHTML = data;
+}
+function resetGame() {
+	for (var i=0;i<=8;i++) {
+		change(i,"");
+	}
+}
+function test() {
+	//var tree = new Tree("yes");
+	//change(0,tree._root.data);
+}
+
+
+//------------------------------------------------------------------------
+function takeTurn() {
+  //reads board
+  for (var i = 0; i <= 2; i++) {
+    for (var j = 0; j <= 2; j++) {
+      board[i][j] = range.getCell(i+1,j+1).getValue();
+    }
+  }
+  
+  //new tree, assign board and data to the root node
+  var tree = new Tree(0);
+  tree._root.board = board;
+  tree._root.data = whoWon(tree._root.board);
+  //construct a tree for each possible move, stop if anyone has won
+  makeTree(tree._root);
+  
+  
+}
+  
+function makeTree(node) {
+  if (node.data == 0) {
+    for (var i=0;i<=2;i++) {
+      for (var j=0;j<=2;j++) {
+        var nNode = new Node("xxx");
+        nNode.parent = node;
+        nNode.board = node.board;
+        if (node.depth%2 == 1) {
+          nNode.board[i][j] = "X";
+        } else {
+          nNode.board[i][j] = "O";
+        }
+        nNode.data = whoWon(nNode.board);
+        nNode.id = toID(nNode.board);
+
+        node.children.push(nNode);
+        
+        makeTree(nNode);
+      }
+    } 
+  }
+}
+  
+//takes in a board and returns a unique id for that board
+function toID(xBoard) { 
+  var id = "";
+  for (i = 0; i<=2;i++) {
+    for (j =0; j<=2; j++) {
+      id += xBoard[i][j];
+    }
+  }
+  return id;
+}  
+
+//takes a board, checks if anyone has won,
+//returns a 0 if noone won yet, -1 if AI (x) won, 1 if player (o) won
+//holy shit is this inelegant
+function whoWon(hBoard) {
+  var result = 0;
+  if (hBoard[0][0] == "X" && hBoard[0][1] == "X" && hBoard[0][2] == "X") {result = -1;}
+  if (hBoard[1][0] == "X" && hBoard[1][1] == "X" && hBoard[1][2] == "X") {result = -1;}
+  if (hBoard[2][0] == "X" && hBoard[2][1] == "X" && hBoard[2][2] == "X") {result = -1;}
+  if (hBoard[0][0] == "X" && hBoard[1][0] == "X" && hBoard[2][0] == "X") {result = -1;}
+  if (hBoard[0][1] == "X" && hBoard[1][1] == "X" && hBoard[2][1] == "X") {result = -1;}
+  if (hBoard[0][2] == "X" && hBoard[1][1] == "X" && hBoard[2][2] == "X") {result = -1;}
+  if (hBoard[0][0] == "X" && hBoard[1][1] == "X" && hBoard[2][2] == "X") {result = -1;}
+  if (hBoard[0][2] == "X" && hBoard[1][1] == "X" && hBoard[2][0] == "X") {result = -1;}
+  
+  if (hBoard[0][0] == "O" && hBoard[0][1] == "O" && hBoard[0][2] == "O") {result = 1;}
+  if (hBoard[1][0] == "O" && hBoard[1][1] == "O" && hBoard[1][2] == "O") {result = 1;}
+  if (hBoard[2][0] == "O" && hBoard[2][1] == "O" && hBoard[2][2] == "O") {result = 1;}
+  if (hBoard[0][0] == "O" && hBoard[1][0] == "O" && hBoard[2][0] == "O") {result = 1;}
+  if (hBoard[0][1] == "O" && hBoard[1][1] == "O" && hBoard[2][1] == "O") {result = 1;}
+  if (hBoard[0][2] == "O" && hBoard[1][1] == "O" && hBoard[2][2] == "O") {result = 1;}
+  if (hBoard[0][0] == "O" && hBoard[1][1] == "O" && hBoard[2][2] == "O") {result = 1;}
+  if (hBoard[0][2] == "O" && hBoard[1][1] == "O" && hBoard[2][0] == "O") {result = 1;}
+  
+  //msgRange.getCell(1,1).setValue("whoWon result : " + result);
+  return result;
+  
+}
+ 
+  
+
+  
+
+
+</script>
+</body>
+</html> 
