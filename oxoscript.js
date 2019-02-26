@@ -3,33 +3,33 @@
 //import {Node, Tree} from 'treeDataStruct';
 
 //GLOBAL VAR
-var board = [];
+var gBoard = [];
 for (var i = 0; i <= 2; i++) {
-  board[i] = [];
+  gBoard[i] = [];
 }
 
 function readBoard() {
-	board[0][0] = document.getElementById("0").innerHTML; 
-	board[0][1] = document.getElementById("1").innerHTML; 
-	board[0][2] = document.getElementById("2").innerHTML; 
-	board[1][0] = document.getElementById("3").innerHTML; 
-	board[1][1] = document.getElementById("4").innerHTML; 
-	board[1][2] = document.getElementById("5").innerHTML; 
-	board[2][0] = document.getElementById("6").innerHTML; 
-	board[2][1] = document.getElementById("7").innerHTML; 
-	board[2][2] = document.getElementById("8").innerHTML; 
+	gBoard[0][0] = document.getElementById("0").innerHTML; 
+	gBoard[0][1] = document.getElementById("1").innerHTML; 
+	gBoard[0][2] = document.getElementById("2").innerHTML; 
+	gBoard[1][0] = document.getElementById("3").innerHTML; 
+	gBoard[1][1] = document.getElementById("4").innerHTML; 
+	gBoard[1][2] = document.getElementById("5").innerHTML; 
+	gBoard[2][0] = document.getElementById("6").innerHTML; 
+	gBoard[2][1] = document.getElementById("7").innerHTML; 
+	gBoard[2][2] = document.getElementById("8").innerHTML; 
 }
 
 function applyBoard() {
-	change(0,board[0][0]);
-	change(1,board[0][1]);
-	change(2,board[0][2]);
-	change(3,board[1][0]);
-	change(4,board[1][1]);
-	change(5,board[1][2]);
-	change(6,board[2][0]);
-	change(7,board[2][1]);
-	change(8,board[2][2]);
+	change(0,gBoard[0][0]);
+	change(1,gBoard[0][1]);
+	change(2,gBoard[0][2]);
+	change(3,gBoard[1][0]);
+	change(4,gBoard[1][1]);
+	change(5,gBoard[1][2]);
+	change(6,gBoard[2][0]);
+	change(7,gBoard[2][1]);
+	change(8,gBoard[2][2]);
 }
 
 function change(id, data) {
@@ -58,46 +58,68 @@ function takeTurn() {
   
   //new tree, assign board and data to the root node
   var tree = new Tree(0);
-  tree._root.board = board;
+  tree._root.board = gBoard;
   tree._root.data = whoWon(tree._root.board);
+  tree._root.id = toID(tree._root.board);
   //construct a tree for each possible move, stop if anyone has won
-  //makeTree(tree._root);
-  
-  /*tree.traverseBF(function(node){
-    log(node.data);
-  });*/
-  log(tree._root.data);
+  makeTree(tree._root);
 }
-  
-function makeTree(node) {
-  if (node.data == 0) {
-    for (var i=0;i<=2;i++) {
-      for (var j=0;j<=2;j++) {
-        var nNode = new Node("xxx");
-        nNode.parent = node;
-        nNode.board = node.board;
-        if (node.depth%2 == 1) {
-          nNode.board[i][j] = "X";
-        } else {
-          nNode.board[i][j] = "O";
-        }
-        nNode.data = whoWon(nNode.board);
-        nNode.id = toID(nNode.board);
 
-        node.children.push(nNode);
-        
-        makeTree(nNode);
-      }
-    } 
-  }
+//this is fucked, i shoudl rewrite everything
+function makeTree(node) {
+  function createNewNode(node) {
+    if (node.data === 0) {
+      log("Creating children for node" )
+      for (var i=0;i<=2;i++) {
+        for (var j=0;j<=2;j++) {
+          log("calling assignNewNode(" + i + j + ")" + "by node with id : " + node.id);
+          
+          if (node.board[i][j] != "X" && node.board[i][j] != "O") {
+          
+            log("creating new node, depth : " + node.getDepth() + ", id : " + node.id);
+            
+            var nNode = new Node("xxx");
+            nNode.parent = node;
+            nNode.board = node.board;
+            
+            if (node.getDepth()%2 == 1) {
+              nNode.board[i][j] = "X";
+            } else {
+              nNode.board[i][j] = "O";
+            }
+            
+            nNode.id= toID(nNode.board);
+            nNode.data = whoWon(nNode.board);
+            
+            log("winner ? : " + nNode.data);
+            
+            for (var ix=0;ix<=2;ix++) {
+                log("." + nNode.board[ix][0] + "|" + "." + nNode.board[ix][1] + "|" + "." + nNode.board[ix][2]);
+            }
+
+            node.children.push(nNode);
+            
+            log("calling makeTree");
+            createNewNode(nNode);
+            log("called makeTree");
+        } else {log("space taken at : " + i + "," + j)}
+
+        }
+      } 
+    }
+  } createNewNode(node);
 }
-  
+
+function assignNewNode(node, i,j) {
+
+}
 //takes in a board and returns a unique id for that board
+//to be reworked, the id isnt unique rn
 function toID(xBoard) { 
   var id = "";
   for (i = 0; i<=2;i++) {
     for (j =0; j<=2; j++) {
-      id += xBoard[i][j];
+      id += "[" + i + j + "." + xBoard[i][j] + "]";
     }
   }
   return id;
