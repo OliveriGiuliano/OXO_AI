@@ -9,15 +9,15 @@ for (var i = 0; i <= 2; i++) {
 }
 
 function readBoard() {
-	gBoard[0][0] = document.getElementById("0").innerHTML; 
-	gBoard[0][1] = document.getElementById("1").innerHTML; 
-	gBoard[0][2] = document.getElementById("2").innerHTML; 
-	gBoard[1][0] = document.getElementById("3").innerHTML; 
-	gBoard[1][1] = document.getElementById("4").innerHTML; 
-	gBoard[1][2] = document.getElementById("5").innerHTML; 
-	gBoard[2][0] = document.getElementById("6").innerHTML; 
-	gBoard[2][1] = document.getElementById("7").innerHTML; 
-	gBoard[2][2] = document.getElementById("8").innerHTML; 
+	gBoard[0][0] = document.getElementById("0").innerHTML;
+	gBoard[0][1] = document.getElementById("1").innerHTML;
+	gBoard[0][2] = document.getElementById("2").innerHTML;
+	gBoard[1][0] = document.getElementById("3").innerHTML;
+	gBoard[1][1] = document.getElementById("4").innerHTML;
+	gBoard[1][2] = document.getElementById("5").innerHTML;
+	gBoard[2][0] = document.getElementById("6").innerHTML;
+	gBoard[2][1] = document.getElementById("7").innerHTML;
+	gBoard[2][2] = document.getElementById("8").innerHTML;
 }
 
 function applyBoard() {
@@ -55,12 +55,13 @@ function log(data) {
 function takeTurn() {
 
   readBoard();
-  
+
   //new tree, assign board and data to the root node
   var tree = new Tree(0);
   tree._root.board = gBoard;
   tree._root.data = whoWon(tree._root.board);
   tree._root.id = toID(tree._root.board);
+
   //construct a tree for each possible move, stop if anyone has won
   makeTree(tree._root);
 }
@@ -73,39 +74,39 @@ function makeTree(node) {
       for (var i=0;i<=2;i++) {
         for (var j=0;j<=2;j++) {
           log("calling assignNewNode(" + i + j + ")" + "by node with id : " + node.id);
-          
+
           if (node.board[i][j] != "X" && node.board[i][j] != "O") {
-          
+
             log("creating new node, depth : " + node.getDepth() + ", id : " + node.id);
-            
+
             var nNode = new Node("xxx");
             nNode.parent = node;
             nNode.board = node.board;
-            
+
             if (node.getDepth()%2 == 1) {
               nNode.board[i][j] = "X";
             } else {
               nNode.board[i][j] = "O";
             }
-            
+
             nNode.id= toID(nNode.board);
             nNode.data = whoWon(nNode.board);
-            
+
             log("winner ? : " + nNode.data);
-            
+
             for (var ix=0;ix<=2;ix++) {
                 log("." + nNode.board[ix][0] + "|" + "." + nNode.board[ix][1] + "|" + "." + nNode.board[ix][2]);
             }
 
             node.children.push(nNode);
-            
+
             log("calling makeTree");
             createNewNode(nNode);
             log("called makeTree");
         } else {log("space taken at : " + i + "," + j)}
 
         }
-      } 
+      }
     }
   } createNewNode(node);
 }
@@ -115,7 +116,7 @@ function assignNewNode(node, i,j) {
 }
 //takes in a board and returns a unique id for that board
 //to be reworked, the id isnt unique rn
-function toID(xBoard) { 
+function toID(xBoard) {
   var id = "";
   for (i = 0; i<=2;i++) {
     for (j =0; j<=2; j++) {
@@ -123,7 +124,7 @@ function toID(xBoard) {
     }
   }
   return id;
-}  
+}
 
 //takes a board, checks if anyone has won,
 //returns a 0 if noone won yet, -1 if AI (x) won, 1 if player (o) won
@@ -138,7 +139,7 @@ function whoWon(hBoard) {
   if (hBoard[0][2] == "X" && hBoard[1][1] == "X" && hBoard[2][2] == "X") {result = -1;}
   if (hBoard[0][0] == "X" && hBoard[1][1] == "X" && hBoard[2][2] == "X") {result = -1;}
   if (hBoard[0][2] == "X" && hBoard[1][1] == "X" && hBoard[2][0] == "X") {result = -1;}
-  
+
   if (hBoard[0][0] == "O" && hBoard[0][1] == "O" && hBoard[0][2] == "O") {result = 1;}
   if (hBoard[1][0] == "O" && hBoard[1][1] == "O" && hBoard[1][2] == "O") {result = 1;}
   if (hBoard[2][0] == "O" && hBoard[2][1] == "O" && hBoard[2][2] == "O") {result = 1;}
@@ -147,12 +148,12 @@ function whoWon(hBoard) {
   if (hBoard[0][2] == "O" && hBoard[1][1] == "O" && hBoard[2][2] == "O") {result = 1;}
   if (hBoard[0][0] == "O" && hBoard[1][1] == "O" && hBoard[2][2] == "O") {result = 1;}
   if (hBoard[0][2] == "O" && hBoard[1][1] == "O" && hBoard[2][0] == "O") {result = 1;}
-  
+
   //msgRange.getCell(1,1).setValue("whoWon result : " + result);
   return result;
-  
+
 }
- 
+
 
 //-------------------------------------------------------------------------------------------------------
 //TREE DATA STRUCTURE START
@@ -181,7 +182,7 @@ Node.prototype.getDepth = function () {
   }
   return depth;
 };
-  
+
 //Tree data struct, traverse Depth first function
 Tree.prototype.traverseDF = function(callback) {
   function recurse(currentNode) {
@@ -198,12 +199,12 @@ Tree.prototype.traverseBF = function(callback) {
   var queue = new Queue();
   queue.enqueue(this._root);
   currentNode = queue.dequeue();
-  
+
   while (currentNode) {
     for (var i = 0, length = currentNode.children.length; i<length;i++) {
       queue.enqueue(currentNode.children[i]);
     }
-    
+
     callback(currentNode);
     currentNode = queue.dequeue();
   }
@@ -269,12 +270,12 @@ Tree.prototype.remove = function (data, fromData, traversal) {
           parent = node;
         }
       };
-  
+
   this.contains(callback, traversal);
-  
+
   if (parent) {
     index = findIndex(parent.children, data);
-    
+
     if (index === undefined) {
       throw new Error('Cant remove a node that doesnt exist')
     } else {
@@ -283,7 +284,7 @@ Tree.prototype.remove = function (data, fromData, traversal) {
   } else {
     throw new Error("Cant find parent from which to remove node")
   }
-  
+
   return childToRemove;
 };
 
