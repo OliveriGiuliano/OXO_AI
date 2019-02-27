@@ -1,7 +1,3 @@
-//THE IMPORT WONT WORK FUCK
-//import tree
-//import {Node, Tree} from 'treeDataStruct';
-
 //GLOBAL VAR
 var gBoard = [];
 for (var i = 0; i <= 2; i++) {
@@ -58,62 +54,71 @@ function takeTurn() {
 
   //new tree, assign board and data to the root node
   var tree = new Tree(0);
-  tree._root.board = gBoard;
+  tree._root.board = copyBoard(gBoard);
   tree._root.data = whoWon(tree._root.board);
   tree._root.id = toID(tree._root.board);
 
   //construct a tree for each possible move, stop if anyone has won
-  makeTree(tree._root);
+  makeChildrenNodes(tree._root);
+  //makeTree(tree._root);
+
 }
 
-//this is fucked, i shoudl rewrite everything
 function makeTree(node) {
-  function createNewNode(node) {
-    if (node.data === 0) {
-      log("Creating children for node" )
-      for (var i=0;i<=2;i++) {
-        for (var j=0;j<=2;j++) {
-          log("calling assignNewNode(" + i + j + ")" + "by node with id : " + node.id);
+  node.children.forEach(makeChildrenNodes);
+}
 
-          if (node.board[i][j] != "X" && node.board[i][j] != "O") {
-
-            log("creating new node, depth : " + node.getDepth() + ", id : " + node.id);
-
-            var nNode = new Node("xxx");
-            nNode.parent = node;
-            nNode.board = node.board;
-
-            if (node.getDepth()%2 == 1) {
-              nNode.board[i][j] = "X";
-            } else {
-              nNode.board[i][j] = "O";
-            }
-
-            nNode.id= toID(nNode.board);
-            nNode.data = whoWon(nNode.board);
-
-            log("winner ? : " + nNode.data);
-
-            for (var ix=0;ix<=2;ix++) {
-                log("." + nNode.board[ix][0] + "|" + "." + nNode.board[ix][1] + "|" + "." + nNode.board[ix][2]);
-            }
-
-            node.children.push(nNode);
-
-            log("calling makeTree");
-            createNewNode(nNode);
-            log("called makeTree");
-        } else {log("space taken at : " + i + "," + j)}
-
+function makeChildrenNodes(node) {
+  //if the board of the current node has no winner
+  if (whoWon(node.board) === 0) {
+    //for every free space on the board
+    for (var i=0; i<=2;i++) {
+      for (var j=0;j<=2;j++) {
+        if (node.board[i][j] != "X" && node.board[i][j] != "O") {
+          //create a new node with the free space as either a X or a O
+          var nNode = undefined;
+          nNode = new Node("xxx");
+          nNode.parent = node;
+          nNode.board = copyBoard(node.board);
+          var turn;
+          if (nNode.getDepth()%2 == 1) {
+            turn = "X";
+          } else {
+            turn = "O";
+          }
+          nNode.board[i][j] = turn;
+          nNode.data = whoWon(nNode.board);
+          nNode.id = toID(nNode.board);
+          node.children.push(nNode);
+          log("Created a new node with id : " + nNode.id + " and depth : " + nNode.getDepth());
+          for(var k = 0;k<=2;k++){
+            log(nNode.board[k][0] + "|" + nNode.board[k][1] + "|" + nNode.board[k][2] + "   <===   " + node.board[k][0] + "|" + node.board[k][1] + "|" + node.board[k][2]);
+          }
+          makeChildrenNodes(nNode);
+          /*log("from parent node with id : " + node.id);
+          for(var k = 0;k<=2;k++){
+            log(node.board[k][0] + "|" + node.board[k][1] + "|" + node.board[k][2]);
+          }*/
         }
       }
     }
-  } createNewNode(node);
+  }
 }
 
-function assignNewNode(node, i,j) {
-
+//creates and return a copy of an array
+function copyBoard(board) {
+  var nBoard = [];
+  for (var k = 0; k <= 2; k++) {
+    nBoard[k] = [];
+  }
+  for (var i=0;i<=2;i++) {
+    for (var j=0;j<=2;j++) {
+      nBoard[i][j] = board[i][j];
+    }
+  }
+  return nBoard;
 }
+
 //takes in a board and returns a unique id for that board
 //to be reworked, the id isnt unique rn
 function toID(xBoard) {
