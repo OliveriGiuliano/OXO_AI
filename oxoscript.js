@@ -144,7 +144,7 @@ function makeTree(node) {
 
 function makeChildrenNodes(node) {
   //if the board of the current node has no winner
-  if (whoWon(node.board) === 0 && node.getDepth() < 9) {
+  if (whoWon(node.board) === 0) {
     //for every free space on the board
     for (var i=0; i<=2;i++) {
       for (var j=0;j<=2;j++) {
