@@ -132,7 +132,7 @@ function minimax(node){
         value = Math.min(value,node.children[i].data);
       }
     }
-    return value;
+    return value/(node.getDepth()+1);
   } else {
     return node.data;
   }
