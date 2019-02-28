@@ -1,3 +1,8 @@
+//Notes:
+//the current log function is really slow if theres a lot of logging to do
+//you cant array_copy = array, this will just make a reference to the SAME object
+
+
 //GLOBAL VAR
 var gBoard = [];
 for (var i = 0; i <= 2; i++) {
@@ -43,6 +48,11 @@ function test() {
 	change(0,tree._root.data);
 }
 
+function tabClick(ind) {
+  change(ind,"O");
+  takeTurn();
+}
+
 function log(data) {
   document.getElementById("msg").innerHTML += "<br>" + data;
 }
@@ -52,16 +62,80 @@ function takeTurn() {
 
   readBoard();
 
-  //new tree, assign board and data to the root node
-  var tree = new Tree(0);
-  tree._root.board = copyBoard(gBoard);
-  tree._root.data = whoWon(tree._root.board);
-  tree._root.id = toID(tree._root.board);
+  if (whoWon(gBoard) == 0) {
+    //new tree, assign board and data to the root node
+    var tree = new Tree(0);
+    tree._root.board = copyBoard(gBoard);
+    tree._root.data = whoWon(tree._root.board);
+    tree._root.id = toID(tree._root.board);
 
-  //construct a tree for each possible move, stop if anyone has won
-  makeChildrenNodes(tree._root);
-  //makeTree(tree._root);
+    //construct a tree for each possible move, stop if anyone has won
+    makeChildrenNodes(tree._root);
+    //minimax
+    tree.traverseDF(function (node) {
+      node.data = minimax(node);
+    });
 
+    var bc = tree._root.children[bestChild(tree._root)];
+    gBoard = bc.board;
+    applyBoard();
+
+  }
+
+  readBoard();
+  if (whoWon(gBoard) == -1) {
+    log("YOU LOST");
+  } else if (whoWon(gBoard) == 1) {
+    log("YOU WON");
+  }
+
+}
+
+function bestChild(node) {
+  var value;
+  var ind;
+  if (node.children.length > 0) {
+    if (node.getDepth() % 2){
+      value = -999;
+      for (var i =0; i < node.children.length;i++) {
+        if (value < node.children[i].data) {
+          value = node.children[i].data;
+          ind = i;
+        }
+      }
+    } else {
+      value = 999;
+      for (var i =0; i < node.children.length;i++) {
+        if (value > node.children[i].data) {
+          value = node.children[i].data;
+          ind = i;
+        }
+      }
+    }
+    return ind;
+  } else {
+    throw new Error ("No child! bestChild")
+  }
+}
+
+function minimax(node){
+  var value;
+  if (node.children.length > 0) {
+    if (node.getDepth() % 2){
+      value = -999;
+      for (var i =0; i < node.children.length;i++) {
+        value = Math.max(value,node.children[i].data);
+      }
+    } else {
+      value = 999;
+      for (var i =0; i < node.children.length;i++) {
+        value = Math.min(value,node.children[i].data);
+      }
+    }
+    return value;
+  } else {
+    return node.data;
+  }
 }
 
 function makeTree(node) {
@@ -70,7 +144,7 @@ function makeTree(node) {
 
 function makeChildrenNodes(node) {
   //if the board of the current node has no winner
-  if (whoWon(node.board) === 0) {
+  if (whoWon(node.board) === 0 && node.getDepth() < 9) {
     //for every free space on the board
     for (var i=0; i<=2;i++) {
       for (var j=0;j<=2;j++) {
@@ -90,15 +164,8 @@ function makeChildrenNodes(node) {
           nNode.data = whoWon(nNode.board);
           nNode.id = toID(nNode.board);
           node.children.push(nNode);
-          log("Created a new node with id : " + nNode.id + " and depth : " + nNode.getDepth());
-          for(var k = 0;k<=2;k++){
-            log(nNode.board[k][0] + "|" + nNode.board[k][1] + "|" + nNode.board[k][2] + "   <===   " + node.board[k][0] + "|" + node.board[k][1] + "|" + node.board[k][2]);
-          }
+
           makeChildrenNodes(nNode);
-          /*log("from parent node with id : " + node.id);
-          for(var k = 0;k<=2;k++){
-            log(node.board[k][0] + "|" + node.board[k][1] + "|" + node.board[k][2]);
-          }*/
         }
       }
     }
@@ -141,7 +208,7 @@ function whoWon(hBoard) {
   if (hBoard[2][0] == "X" && hBoard[2][1] == "X" && hBoard[2][2] == "X") {result = -1;}
   if (hBoard[0][0] == "X" && hBoard[1][0] == "X" && hBoard[2][0] == "X") {result = -1;}
   if (hBoard[0][1] == "X" && hBoard[1][1] == "X" && hBoard[2][1] == "X") {result = -1;}
-  if (hBoard[0][2] == "X" && hBoard[1][1] == "X" && hBoard[2][2] == "X") {result = -1;}
+  if (hBoard[0][2] == "X" && hBoard[1][2] == "X" && hBoard[2][2] == "X") {result = -1;}
   if (hBoard[0][0] == "X" && hBoard[1][1] == "X" && hBoard[2][2] == "X") {result = -1;}
   if (hBoard[0][2] == "X" && hBoard[1][1] == "X" && hBoard[2][0] == "X") {result = -1;}
 
@@ -150,7 +217,7 @@ function whoWon(hBoard) {
   if (hBoard[2][0] == "O" && hBoard[2][1] == "O" && hBoard[2][2] == "O") {result = 1;}
   if (hBoard[0][0] == "O" && hBoard[1][0] == "O" && hBoard[2][0] == "O") {result = 1;}
   if (hBoard[0][1] == "O" && hBoard[1][1] == "O" && hBoard[2][1] == "O") {result = 1;}
-  if (hBoard[0][2] == "O" && hBoard[1][1] == "O" && hBoard[2][2] == "O") {result = 1;}
+  if (hBoard[0][2] == "O" && hBoard[1][2] == "O" && hBoard[2][2] == "O") {result = 1;}
   if (hBoard[0][0] == "O" && hBoard[1][1] == "O" && hBoard[2][2] == "O") {result = 1;}
   if (hBoard[0][2] == "O" && hBoard[1][1] == "O" && hBoard[2][0] == "O") {result = 1;}
 
