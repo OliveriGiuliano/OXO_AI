@@ -1,21 +1,8 @@
  <!DOCTYPE html>
 <html>
 <head>
-<style type="text/css">
-	table {
-  		font-family: arial, sans-serif;
-  		border-collapse: collapse;
-  		font-size: 100px;
-  	}
 
-	td, th {
-  	  	border: 5px solid #dddddd;
-  		text-align: center;
-  		padding: 8px;
-  		width: 160px;
-  		height: 160px;
-	}
-</style>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 <table>
@@ -35,9 +22,10 @@
 		<th onclick="tabClick(8)" id="8"></th>
 	</tr>
 </table>
-<button onclick="resetGame()">Reset game</button>
-<p id="msg"></p>
-
+<div id="msgdiv">
+  <p id="msg"></p>
+  <button id="resetbutton" onclick="newGame()">New Game</button>
+</div>
 <script src="oxoscript.js"></script>
 </body>
 </html>

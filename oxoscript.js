@@ -49,12 +49,20 @@ function test() {
 }
 
 function tabClick(ind) {
-  change(ind,"O");
-  takeTurn();
+  if (!document.getElementById(ind).innerHTML) {
+    change(ind,"O");
+    takeTurn();
+  }
 }
 
 function log(data) {
-  document.getElementById("msg").innerHTML += "<br>" + data;
+  document.getElementById("msg").innerHTML = data;
+  document.getElementById("msgdiv").style.display = "block";
+}
+
+function newGame() {
+  document.getElementById("msgdiv").style.display = "none";
+  resetGame();
 }
 
 //------------------------------------------------------------------------ imported from google script, might need to be reworked
@@ -84,9 +92,11 @@ function takeTurn() {
 
   readBoard();
   if (whoWon(gBoard) == -1) {
-    log("YOU LOST");
+    log("You Lost!")
+    //resetGame();
   } else if (whoWon(gBoard) == 1) {
-    log("YOU WON");
+    log("You Won!");
+    //resetGame();
   }
 
 }
@@ -114,7 +124,7 @@ function bestChild(node) {
     }
     return ind;
   } else {
-    throw new Error ("No child! bestChild")
+    log("Draw!");
   }
 }
 
