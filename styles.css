@@ -1,8 +1,8 @@
 table {
-		border-collapse: collapse;
+    border-collapse: collapse;
 		font-size: 100px;
     margin : auto;
-    margin-top: 150px;
+    margin-top: 7%;
     margin-bottom: 50px;
 }
 
@@ -46,4 +46,17 @@ body {
 
 #resetbutton:hover {
   background-color: lightgrey;
+}
+
+#score {
+  display: inline;
+  font-family: helvetica;
+  font-weight: bold;
+  margin-top: 17%;
+  text-align: left;
+  position: absolute;
+}
+
+#score_player, #score_ai, #score_draw {
+  margin-left: 100px;
 }

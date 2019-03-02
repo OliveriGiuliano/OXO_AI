@@ -49,7 +49,8 @@ function test() {
 }
 
 function tabClick(ind) {
-  if (!document.getElementById(ind).innerHTML) {
+  if (!document.getElementById(ind).innerHTML
+    && document.getElementById("msgdiv").style.display != "block") {
     change(ind,"O");
     takeTurn();
   }
@@ -63,6 +64,22 @@ function log(data) {
 function newGame() {
   document.getElementById("msgdiv").style.display = "none";
   resetGame();
+}
+
+function trackScore(state) {
+  switch (state) {
+    case "win":
+      document.getElementById("score_player").innerHTML++;
+      break;
+    case "loss":
+      document.getElementById("score_ai").innerHTML++;
+      break;
+    case "draw":
+      document.getElementById("score_draw").innerHTML++;
+      break;
+    default:
+      throw new Error ("Wrong state sent to trackScore!");
+  }
 }
 
 //------------------------------------------------------------------------ imported from google script, might need to be reworked
@@ -93,10 +110,10 @@ function takeTurn() {
   readBoard();
   if (whoWon(gBoard) == -1) {
     log("You Lost!")
-    //resetGame();
+    trackScore("loss");
   } else if (whoWon(gBoard) == 1) {
     log("You Won!");
-    //resetGame();
+    trackScore("win");
   }
 
 }
@@ -125,6 +142,7 @@ function bestChild(node) {
     return ind;
   } else {
     log("Draw!");
+    trackScore("draw");
   }
 }
 
