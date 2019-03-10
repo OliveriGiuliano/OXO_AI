@@ -4,33 +4,55 @@
 
 
 //GLOBAL VAR
+var SIZE = 3;
 var gBoard = [];
-for (var i = 0; i <= 2; i++) {
+for (var i = 0; i < SIZE; i++) {
   gBoard[i] = [];
+}
+var HTMLBOARD;
+
+window.onload = function() {
+  HTMLBOARD = tableCreate();
+}
+
+function tableCreate(){
+  var body = document.body,
+      tbl  = document.createElement('table');
+
+  for(var i = 0; i < SIZE; i++){
+      var tr = tbl.insertRow();
+      for(var j = 0; j < SIZE; j++){
+        var td = tr.insertCell();
+        var id = "" + i + j;
+        var fun = "tabClick('" + id + "')";
+        td.setAttribute("id", id);
+        td.setAttribute("onClick", fun);
+        td.innerHTML = "";
+        if ((i+j)%2 == 1) {
+          td.style.backgroundColor = '#f2f2f2';
+        }
+      }
+  }
+  body.appendChild(tbl);
+  return tbl;
 }
 
 function readBoard() {
-	gBoard[0][0] = document.getElementById("0").innerHTML;
-	gBoard[0][1] = document.getElementById("1").innerHTML;
-	gBoard[0][2] = document.getElementById("2").innerHTML;
-	gBoard[1][0] = document.getElementById("3").innerHTML;
-	gBoard[1][1] = document.getElementById("4").innerHTML;
-	gBoard[1][2] = document.getElementById("5").innerHTML;
-	gBoard[2][0] = document.getElementById("6").innerHTML;
-	gBoard[2][1] = document.getElementById("7").innerHTML;
-	gBoard[2][2] = document.getElementById("8").innerHTML;
+  for (var i=0;i<SIZE;i++) {
+    for (var j=0;j<SIZE;j++) {
+      gBoard[i][j] = document.getElementById(""+i+j).innerHTML;
+    }
+  }
+	// gBoard[0][0] = document.getElementById("0").innerHTML;
 }
 
 function applyBoard() {
-	change(0,gBoard[0][0]);
-	change(1,gBoard[0][1]);
-	change(2,gBoard[0][2]);
-	change(3,gBoard[1][0]);
-	change(4,gBoard[1][1]);
-	change(5,gBoard[1][2]);
-	change(6,gBoard[2][0]);
-	change(7,gBoard[2][1]);
-	change(8,gBoard[2][2]);
+  for (var i = 0;i<SIZE;i++) {
+    for (var j=0;j<SIZE;j++) {
+      change(""+i+j,gBoard[i][j]);
+    }
+  }
+	// change(0,gBoard[0][0]);
 }
 
 function change(id, data) {
@@ -38,8 +60,10 @@ function change(id, data) {
 }
 
 function resetGame() {
-	for (var i=0;i<=8;i++) {
-		change(i,"");
+	for (var i=0;i<SIZE;i++) {
+    for (var j=0;j<SIZE;j++) {
+      change("" + i + j,"");
+    }
 	}
 }
 
@@ -92,7 +116,7 @@ function takeTurn() {
     var tree = new Tree(0);
     tree._root.board = copyBoard(gBoard);
     tree._root.data = whoWon(tree._root.board);
-    tree._root.id = toID(tree._root.board);
+    //tree._root.id = toID(tree._root.board);
 
     //construct a tree for each possible move, stop if anyone has won
     makeChildrenNodes(tree._root);
@@ -102,7 +126,9 @@ function takeTurn() {
     });
 
     var bc = tree._root.children[bestChild(tree._root)];
-    gBoard = bc.board;
+    //if (bc) {
+      gBoard = bc.board;
+    //}
     applyBoard();
 
   }
@@ -115,7 +141,6 @@ function takeTurn() {
     log("You Won!");
     trackScore("win");
   }
-
 }
 
 function bestChild(node) {
@@ -174,8 +199,8 @@ function makeChildrenNodes(node) {
   //if the board of the current node has no winner
   if (whoWon(node.board) === 0) {
     //for every free space on the board
-    for (var i=0; i<=2;i++) {
-      for (var j=0;j<=2;j++) {
+    for (var i=0; i<SIZE;i++) {
+      for (var j=0;j<SIZE;j++) {
         if (node.board[i][j] != "X" && node.board[i][j] != "O") {
           //create a new node with the free space as either a X or a O
           var nNode = undefined;
@@ -190,7 +215,7 @@ function makeChildrenNodes(node) {
           }
           nNode.board[i][j] = turn;
           nNode.data = whoWon(nNode.board);
-          nNode.id = toID(nNode.board);
+          //nNode.id = toID(nNode.board);
           node.children.push(nNode);
 
           makeChildrenNodes(nNode);
@@ -203,11 +228,11 @@ function makeChildrenNodes(node) {
 //creates and return a copy of an array
 function copyBoard(board) {
   var nBoard = [];
-  for (var k = 0; k <= 2; k++) {
+  for (var k = 0; k < SIZE; k++) {
     nBoard[k] = [];
   }
-  for (var i=0;i<=2;i++) {
-    for (var j=0;j<=2;j++) {
+  for (var i=0;i< SIZE;i++) {
+    for (var j=0;j< SIZE;j++) {
       nBoard[i][j] = board[i][j];
     }
   }
@@ -218,8 +243,8 @@ function copyBoard(board) {
 //to be reworked, the id isnt unique rn
 function toID(xBoard) {
   var id = "";
-  for (i = 0; i<=2;i++) {
-    for (j =0; j<=2; j++) {
+  for (i = 0; i<SIZE;i++) {
+    for (j =0; j<SIZE; j++) {
       id += "[" + i + j + "." + xBoard[i][j] + "]";
     }
   }
@@ -231,23 +256,68 @@ function toID(xBoard) {
 //holy shit is this inelegant
 function whoWon(hBoard) {
   var result = 0;
-  if (hBoard[0][0] == "X" && hBoard[0][1] == "X" && hBoard[0][2] == "X") {result = -1;}
-  if (hBoard[1][0] == "X" && hBoard[1][1] == "X" && hBoard[1][2] == "X") {result = -1;}
-  if (hBoard[2][0] == "X" && hBoard[2][1] == "X" && hBoard[2][2] == "X") {result = -1;}
-  if (hBoard[0][0] == "X" && hBoard[1][0] == "X" && hBoard[2][0] == "X") {result = -1;}
-  if (hBoard[0][1] == "X" && hBoard[1][1] == "X" && hBoard[2][1] == "X") {result = -1;}
-  if (hBoard[0][2] == "X" && hBoard[1][2] == "X" && hBoard[2][2] == "X") {result = -1;}
-  if (hBoard[0][0] == "X" && hBoard[1][1] == "X" && hBoard[2][2] == "X") {result = -1;}
-  if (hBoard[0][2] == "X" && hBoard[1][1] == "X" && hBoard[2][0] == "X") {result = -1;}
-
-  if (hBoard[0][0] == "O" && hBoard[0][1] == "O" && hBoard[0][2] == "O") {result = 1;}
-  if (hBoard[1][0] == "O" && hBoard[1][1] == "O" && hBoard[1][2] == "O") {result = 1;}
-  if (hBoard[2][0] == "O" && hBoard[2][1] == "O" && hBoard[2][2] == "O") {result = 1;}
-  if (hBoard[0][0] == "O" && hBoard[1][0] == "O" && hBoard[2][0] == "O") {result = 1;}
-  if (hBoard[0][1] == "O" && hBoard[1][1] == "O" && hBoard[2][1] == "O") {result = 1;}
-  if (hBoard[0][2] == "O" && hBoard[1][2] == "O" && hBoard[2][2] == "O") {result = 1;}
-  if (hBoard[0][0] == "O" && hBoard[1][1] == "O" && hBoard[2][2] == "O") {result = 1;}
-  if (hBoard[0][2] == "O" && hBoard[1][1] == "O" && hBoard[2][0] == "O") {result = 1;}
+  //check for vertical wins
+  for (var i = 0; i<SIZE-2;i++) {
+    for (var j = 0;j<SIZE;j++) {
+      if (hBoard[i][j] == hBoard[i+1][j] && hBoard[i+1][j] == hBoard[i+2][j]) {
+        if (hBoard[i][j] == "X") {
+          return -1;
+        } else if (hBoard[i][j] == "O"){
+          return 1;
+        }
+      }
+    }
+  }
+  //check for horizontal wins
+  for (var i = 0; i<SIZE;i++) {
+    for (var j = 0;j<SIZE-2;j++) {
+      if (hBoard[i][j] == hBoard[i][j+1] && hBoard[i][j+1] == hBoard[i][j+2]) {
+        if (hBoard[i][j] == "X") {
+          return -1;
+        } else if (hBoard[i][j] == "O"){
+          return 1;
+        }
+      }
+    }
+  }
+  //check for diagonal wins one way
+  for (var i = 0; i<SIZE-2;i++) {
+    if (hBoard[i][i] == hBoard[i+1][i+1] && hBoard[i+1][i+1] == hBoard[i+2][i+2]) {
+      if (hBoard[i][i] == "X") {
+        return -1;
+      } else if (hBoard[i][i] == "O") {
+        return 1;
+      }
+    }
+  }
+  //and the other
+  for (var i = 0; i<SIZE-2;i++) {
+    if (hBoard[SIZE-(i+1)][i] == hBoard[SIZE-(i+2)][i+1]
+      && hBoard[SIZE-(i+2)][i+1] == hBoard[SIZE-(i+3)][i+2]) {
+      if (hBoard[SIZE-(i+1)][i] == "X") {
+        return -1;
+      } else if (hBoard[SIZE-1-i][i] == "O") {
+        return 1;
+      }
+    }
+  }
+  // if (hBoard[0][0] == "X" && hBoard[0][1] == "X" && hBoard[0][2] == "X") {result = -1;}
+  // if (hBoard[1][0] == "X" && hBoard[1][1] == "X" && hBoard[1][2] == "X") {result = -1;}
+  // if (hBoard[2][0] == "X" && hBoard[2][1] == "X" && hBoard[2][2] == "X") {result = -1;}
+  // if (hBoard[0][0] == "X" && hBoard[1][0] == "X" && hBoard[2][0] == "X") {result = -1;}
+  // if (hBoard[0][1] == "X" && hBoard[1][1] == "X" && hBoard[2][1] == "X") {result = -1;}
+  // if (hBoard[0][2] == "X" && hBoard[1][2] == "X" && hBoard[2][2] == "X") {result = -1;}
+  // if (hBoard[0][0] == "X" && hBoard[1][1] == "X" && hBoard[2][2] == "X") {result = -1;}
+  // if (hBoard[0][2] == "X" && hBoard[1][1] == "X" && hBoard[2][0] == "X") {result = -1;}
+  //
+  // if (hBoard[0][0] == "O" && hBoard[0][1] == "O" && hBoard[0][2] == "O") {result = 1;}
+  // if (hBoard[1][0] == "O" && hBoard[1][1] == "O" && hBoard[1][2] == "O") {result = 1;}
+  // if (hBoard[2][0] == "O" && hBoard[2][1] == "O" && hBoard[2][2] == "O") {result = 1;}
+  // if (hBoard[0][0] == "O" && hBoard[1][0] == "O" && hBoard[2][0] == "O") {result = 1;}
+  // if (hBoard[0][1] == "O" && hBoard[1][1] == "O" && hBoard[2][1] == "O") {result = 1;}
+  // if (hBoard[0][2] == "O" && hBoard[1][2] == "O" && hBoard[2][2] == "O") {result = 1;}
+  // if (hBoard[0][0] == "O" && hBoard[1][1] == "O" && hBoard[2][2] == "O") {result = 1;}
+  // if (hBoard[0][2] == "O" && hBoard[1][1] == "O" && hBoard[2][0] == "O") {result = 1;}
 
   //msgRange.getCell(1,1).setValue("whoWon result : " + result);
   return result;
@@ -263,7 +333,7 @@ function Node(data) {
   this.data = data;
   this.parent = null;
   this.children = [];
-  this.id = undefined;
+  //this.id = undefined;
   this.board = undefined;
 }
 
